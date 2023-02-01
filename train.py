@@ -14,6 +14,7 @@ from model import *
 from losses import *
 from callbacks import *
 from prepare import *
+from custom_callbacks import *
 
 settings = get_settings()
 globals().update(settings)
@@ -40,7 +41,7 @@ X_train, Y_train = auto_split_data_from_X_Y(X_train, Y_train)
 
 X_valid, Y_valid, cams_test = get_paths_ids_more_dataset(filename='test_files.txt')
 
-Y_full = list(Y_train) +  list(Y_valid)
+Y_full = list(Y_train)
 all_class = np.unique(Y_full)
 
 train_n_images = len(Y_train)
@@ -58,9 +59,9 @@ print('train_n_images', train_n_images)
 print('valid_n_images', valid_n_images)
 
 with open("note.txt", mode='w') as f:
-    f.write(str(n_labels) + "\n")
-    f.write(str(train_n_images) + "\n")
-    f.write(str(valid_n_images) + "\n")
+    f.write("n_labels: " + str(n_labels) + "\n")
+    f.write("train_n_images: " + str(train_n_images) + "\n")
+    f.write("valid_n_images: " + str(valid_n_images) + "\n")
 
 tf.keras.backend.clear_session()
 tf.compat.v1.reset_default_graph()
@@ -74,6 +75,8 @@ with strategy.scope():
 
     model.summary()
 
+    emb_name = 'bottleneck_bn'
+
     if not append_norm:
         losses = {
             'cate_output' : ArcfaceLoss(from_logits=True, 
@@ -81,6 +84,7 @@ with strategy.scope():
                                         margin1=arcface_margin1,
                                         margin2=arcface_margin2,
                                         margin3=arcface_margin3),
+            emb_name : SupervisedContrastiveLoss(temperature=sup_con_temperature),
         }
     else:
         losses = {
@@ -88,10 +92,12 @@ with strategy.scope():
                                         batch_size=BATCH_SIZE,
                                         label_smoothing=arcface_label_smoothing,
                                         margin=arcface_margin2),
+            emb_name : SupervisedContrastiveLoss(temperature=sup_con_temperature),
         }
 
     loss_weights = {
         'cate_output' : arc_face_weight,
+        emb_name : sup_con_weight,
     }
 
     metrics = {
@@ -113,19 +119,19 @@ if pretrain_full_model is not None:
 save_path = f'best_model_motor_reid_{base_name}_{im_size}_{emb_dim}_{n_labels}.h5'
 
 callbacks = get_callbacks(monitor, mode, save_path, max_lr, min_lr, cycle_epoch, save_weights_only)
+callbacks.append(CustomValidate())
 
 his = model.fit(train_dataset, 
-                validation_data=valid_dataset,
                 steps_per_epoch = train_n_images//BATCH_SIZE,
                 epochs=epochs,
                 verbose=1,
                 callbacks=callbacks)
 
-metric = 'loss'
-visual_save_metric(his, metric)
+# metric = 'loss'
+# visual_save_metric(his, metric)
 
-metric = 'categorical_accuracy'
-visual_save_metric(his, metric)
+# metric = 'categorical_accuracy'
+# visual_save_metric(his, metric)
 
 
 

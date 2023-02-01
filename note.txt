@@ -1,3 +1,3 @@
-3827
-7031
-7109
+n_labels: 1913
+train_n_images: 7031
+valid_n_images: 7109
