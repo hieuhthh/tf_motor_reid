@@ -1,0 +1,5 @@
+*.h5
+download
+unzip
+__pycache__
+pretrain
