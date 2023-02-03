@@ -36,7 +36,8 @@ if label_mode == 'cate_int':
     use_cate_int = True
 
 model_weight = "good_rank_1_model.h5"
-n_labels = 1913
+# model_weight = "best_model_motor_reid_EfficientNetV2S_256_128_3827.h5"
+n_labels = 3827
 
 strategy = auto_select_accelerator()
 
@@ -83,32 +84,26 @@ valid_n_images_A = len(Y_A)
 valid_dataset_A = build_dataset_from_X_Y(X_A, None, all_class, None, "cate", img_size,
                                          BATCH_SIZE, valid_repeat, valid_shuffle, valid_augment)
 embs_A = model.predict(valid_dataset_A)
-
-norm_embs_A = sklearn.preprocessing.normalize(embs_A)
-
-print("norm_embs_A.shape:", norm_embs_A.shape)
+# embs_A = sklearn.preprocessing.normalize(embs_A)
 
 valid_n_images_B = len(Y_B)
 valid_dataset_B = build_dataset_from_X_Y(X_B, None, all_class, None, "cate", img_size,
                                          BATCH_SIZE, valid_repeat, valid_shuffle, valid_augment)
 embs_B = model.predict(valid_dataset_B)
+# embs_B = sklearn.preprocessing.normalize(embs_B)
 
-norm_embs_B = sklearn.preprocessing.normalize(embs_B)
-
-print("norm_embs_B.shape:", norm_embs_B.shape)
-
-# cosine_mtr = np.dot(norm_embs, norm_embs.T)
-
-probe_features = norm_embs_A
-gallery_features = norm_embs_B
+probe_features = embs_A
+gallery_features = embs_B
 metric = 'cosine'
 ids_camA = np.expand_dims(Y_A, 1)
 ids_camB = np.expand_dims(Y_B, 1)
 
 cmc_curve = np.zeros(gallery_features.shape[0])
 ap_array = []
-# all_dist = scipy.spatial.distance.cdist(probe_features, gallery_features, metric=metric)
-all_dist = np.dot(probe_features, gallery_features.T)
+all_dist = scipy.spatial.distance.cdist(probe_features, gallery_features, metric=metric)
+
+# all_dist = np.dot(probe_features, gallery_features.T)
+# all_dist = -all_dist
 
 print(all_dist)
 print(all_dist.shape)

@@ -1,16 +1,16 @@
 flip_left_right_prob: 0.5
 flip_up_down_prob: 0
 
-rotate_prob: 0.5
+rotate_prob: 0.8
 rotate: 10 # degree
 
-cutout_prob: 0.2
+cutout_prob: 0.8
 cutout_pad_factor: 0.2
 
-color_prob: 0.5
-sature: [0.8, 1.2]
-contrast: [0.8, 1.2]
-brightness: 0.2
+color_prob: 0.8
+sature: [0.9, 1.1]
+contrast: [0.9, 1.1]
+brightness: 0.1
 hue: ~
 
 solarize_prob: 0.0

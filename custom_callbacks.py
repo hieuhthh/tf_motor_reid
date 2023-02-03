@@ -66,6 +66,11 @@ class CustomValidate(tf.keras.callbacks.Callback):
         self.ids_camA = np.expand_dims(Y_A, 1)
         self.ids_camB = np.expand_dims(Y_B, 1)
 
+        try:
+            os.remove("valid_rank_1_mAP.txt")
+        except:
+            pass
+
     def on_train_begin(self, logs=None):
         self.best_mAP = 0
         self.best_rank_1 = 0
@@ -75,18 +80,15 @@ class CustomValidate(tf.keras.callbacks.Callback):
 
         embs_A = emb_model.predict(self.valid_dataset_A, verbose=0)
 
-        norm_embs_A = sklearn.preprocessing.normalize(embs_A)
-
         embs_B = emb_model.predict(self.valid_dataset_B, verbose=0)
 
-        norm_embs_B = sklearn.preprocessing.normalize(embs_B)
-
-        probe_features = norm_embs_A
-        gallery_features = norm_embs_B
+        probe_features = embs_A
+        gallery_features = embs_B
 
         cmc_curve = np.zeros(gallery_features.shape[0])
         ap_array = []
-        all_dist = np.dot(probe_features, gallery_features.T)
+        metric = 'cosine'
+        all_dist = scipy.spatial.distance.cdist(probe_features, gallery_features, metric=metric)
 
         for idx, p_dist in enumerate(all_dist):
             rank_p = np.argsort(p_dist,axis=None)
@@ -103,11 +105,8 @@ class CustomValidate(tf.keras.callbacks.Callback):
         cmc_curve = np.cumsum(cmc_curve)/probe_features.shape[0]
         rank_1 = cmc_curve[0]
         mAP = np.mean(ap_array)
-        
-        print("\n" + "*"*10)
-        print("rank 1:", rank_1)
-        print("mAP:", mAP)
-        print("*"*10)
+    
+        print("\nrank 1:", rank_1, " mAP:", mAP)
 
         with open("valid_rank_1_mAP.txt", "a+") as f:
             f.write(f"Epoch: {epoch} ~ Rank 1: " + str(rank_1) + f" ~ mAP: " + str(mAP) + "\n")

@@ -1,0 +1,3 @@
+Baseline
+    best_rank_1: 0.4954905711943154  at epoch  178
+    best_mAP: 0.5596890373778921  at epoch  178

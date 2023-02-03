@@ -63,6 +63,6 @@ def get_callbacks(monitor, mode, save_path, _max_lr, _min_lr, _cos_anne_ep, save
 
     csv_logger = tf.keras.callbacks.CSVLogger('training.csv')
 
-    callbacks = [lr_schedule, csv_logger]
+    callbacks = [checkpoint, lr_schedule, csv_logger]
 
     return callbacks

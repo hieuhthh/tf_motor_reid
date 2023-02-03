@@ -66,32 +66,28 @@ def create_model(base_name, input_shape, do_dim, atrous_dim, dilation_rates, fin
     backbone_layer_names = get_out_layers(base_name)
     backbone_layers = [base.get_layer(layer_name).output for layer_name in backbone_layer_names]
 
-    x = GlobalAveragePooling2D()(backbone_layers[-1])
-
-    # list_features = []
-    # for backbone_layer in backbone_layers:
-    #     f = atrous_conv(backbone_layer, atrous_dim, dilation_rates)
-    #     f = Concatenate()(f)
-    #     f = self_attention(f, do_dim)
+    list_features = []
+    for backbone_layer in backbone_layers:
+        f = atrous_conv(backbone_layer, atrous_dim, dilation_rates)
+        f = Concatenate()(f)
+        f = self_attention(f, do_dim)
         
-    #     skip = conv(backbone_layer, do_dim, 1)
-    #     f = f + skip
-    #     f = GlobalAveragePooling2D()(f)
+        skip = conv(backbone_layer, do_dim, 1)
+        f = f + skip
+        f = GlobalAveragePooling2D()(f)
 
-    #     list_features.append(f)
+        list_features.append(f)
 
-    # x = Concatenate()(list_features)
+    x = Concatenate()(list_features)
 
-    # x = Dense(do_dim, activation='swish')(x)
-    # x = Dropout(final_dropout)(x)
-    # x = Dense(do_dim)(x)
-    # x = Dropout(final_dropout)(x)
+    x = Dense(do_dim, activation='swish')(x)
+    x = Dropout(final_dropout)(x)
+    x = Dense(do_dim)(x)
+    x = Dropout(final_dropout)(x)
 
     if have_emb_layer:
         x = Dense(emb_dim, use_bias=False, name='bottleneck')(x)
         x = BatchNormalization(name='bottleneck_bn')(x)
-
-    model = Model(base.input, x)
     
     if use_normdense:
         cate_output = NormDense(n_labels, name='cate_output', append_norm=append_norm)(x)

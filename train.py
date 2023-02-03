@@ -41,7 +41,7 @@ X_train, Y_train = auto_split_data_from_X_Y(X_train, Y_train)
 
 X_valid, Y_valid, cams_test = get_paths_ids_more_dataset(filename='test_files.txt')
 
-Y_full = list(Y_train)
+Y_full = list(Y_train) + list(Y_valid)
 all_class = np.unique(Y_full)
 
 train_n_images = len(Y_train)
@@ -49,8 +49,8 @@ train_dataset = build_dataset_from_X_Y(X_train, Y_train, all_class, train_with_l
                                        BATCH_SIZE, train_repeat, train_shuffle, train_augment, im_size_before_crop)
 
 valid_n_images = len(Y_valid)
-valid_dataset = build_dataset_from_X_Y(X_valid, Y_valid, all_class, valid_with_labels, label_mode, img_size,
-                                       BATCH_SIZE, valid_repeat, valid_shuffle, valid_augment)
+# valid_dataset = build_dataset_from_X_Y(X_valid, Y_valid, all_class, valid_with_labels, label_mode, img_size,
+#                                        BATCH_SIZE, valid_repeat, valid_shuffle, valid_augment)
 
 n_labels = len(all_class)
 

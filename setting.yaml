@@ -3,18 +3,18 @@ seed: 42
 CUDA_VISIBLE_DEVICES: '0'
 
 im_size: 256
-im_size_before_crop: 288 # ~ for not using this
-crop_prob: 0.5
+im_size_before_crop: 320 # ~ for not using this
+crop_prob: 0.8
 
 label_mode: 'cate_int'
-BATCH_SIZE: 32
+BATCH_SIZE: 128
 
 valid_ratio: ~
 test_ratio: ~
 
 train_with_labels: True
 train_repeat: True
-train_shuffle: 1024
+train_shuffle: 8192
 train_augment: True
 
 valid_with_labels: True
@@ -24,7 +24,7 @@ valid_augment: False
 
 base_name: 'EfficientNetV2S'
 atrous_dim: 128
-dilation_rates: [4, 8, 12]
+dilation_rates: [3, 5, 7]
 do_dim: 256
 final_dropout: 0.2
 have_emb_layer: True
@@ -43,11 +43,11 @@ arc_face_weight: 1.0
 sup_con_temperature: 0.3
 sup_con_weight: 1.0
 
-monitor: val_loss
+monitor: loss
 mode: min
 
-max_lr: 1.0e-3
+max_lr: 4.0e-4
 min_lr: 1.0e-5
-cycle_epoch: 30
-n_cycle: 10
+cycle_epoch: 20
+n_cycle: 20
 save_weights_only: False
